@@ -1,0 +1,21 @@
+[ec2-user@ip-10-0-241-78 ~]$ k6 run \
+ -e TARGET_URL="http://backend-app.sbcntr.local:8081/v1/pets" \
+ -e VUS=10 \
+ -e ITERATIONS=100000 \
+ load-test.js
+
+          /\      |‾‾| /‾‾/   /‾‾/
+     /\  /  \     |  |/  /   /  /
+    /  \/    \    |     (   /   ‾‾\
+   /          \   |  |\  \ |  (‾)  |
+  / __________ \  |__| \__\ \_____/ .io
+
+     execution: local
+        script: load-test.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 10 max VUs, 10m30s max duration (incl. graceful stop):
+              * default: 100000 iterations shared among 10 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+Cannot perform start session: write tcp 192.168.0.13:52703->52.195.199.97:443: write: broken pipe53.8s), 10/10 VUs, 1817 complete and 0 interrupted iterations
+

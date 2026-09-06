@@ -1,0 +1,59 @@
+$ aws ssm start-session --target $(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=sbnctr-pseudo-cloud9" "Name=instance-state-name,Values=running" \
+    --query "Reservations[0].Instances[0].InstanceId" \
+    --output text)
+
+Starting session with SessionId: admin_user-578ixe2ap646aqzbuhxrgeibku
+sh-5.2$ sudo -i -u ec2-user
+[ec2-user@ip-10-0-241-107 ~]$ cd sbcntr-frontend
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ cat ./app/routes/home.tsx | grep アライとウマのお店
+                  アライとウマのお店
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ sed -i -e "s/アライとウマのお店/サトウと ウマのお店/g" ./app/routes/home.tsx
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ cat ./app/routes/home.tsx | grep サトウとウマのお店
+                  サトウとウマのお店
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ docker buildx build -t sbcntr-frontend-app:v1.0.1 .
+[+] Building 22.1s (19/19) FINISHED                                   docker:default
+ => [internal] load build definition from Dockerfile                            0.0s
+ => => transferring dockerfile: 1.46kB                                          0.0s
+ => [internal] load metadata for public.ecr.aws/docker/library/node:22-slim     0.8s
+ => [internal] load .dockerignore                                               0.0s
+ => => transferring context: 512B                                               0.0s
+ => [internal] load build context                                               0.0s
+ => => transferring context: 14.68kB                                            0.0s
+ => [builder 1/8] FROM public.ecr.aws/docker/library/node:22-slim@sha256:83f48  0.0s
+ => CACHED [builder 2/8] WORKDIR /app                                           0.0s
+ => CACHED [builder 3/8] RUN apt-get update && apt-get install -y     python3   0.0s
+ => CACHED [builder 4/8] RUN corepack enable && corepack prepare pnpm@10.12.4   0.0s
+ => CACHED [builder 5/8] COPY package.json pnpm-lock.yaml ./                    0.0s
+ => CACHED [builder 6/8] RUN pnpm install --frozen-lockfile                     0.0s
+ => [builder 7/8] COPY . .                                                      0.1s
+ => [builder 8/8] RUN pnpm build                                               19.4s
+ => CACHED [runner 3/5] COPY --chown=node:node package.json pnpm-lock.yaml /ap  0.0s
+ => CACHED [prod-deps 3/5] RUN corepack enable && corepack prepare pnpm@10.12.  0.0s
+ => CACHED [prod-deps 4/5] COPY package.json pnpm-lock.yaml ./                  0.0s
+ => CACHED [prod-deps 5/5] RUN pnpm install --prod --frozen-lockfile            0.0s
+ => CACHED [runner 4/5] COPY --from=prod-deps --chown=node:node /app/node_modu  0.0s
+ => [runner 5/5] COPY --from=builder  --chown=node:node /app/build        /app  0.0s
+ => exporting to image                                                          0.1s
+ => => exporting layers                                                         0.1s
+ => => writing image sha256:d1d9f42c8e6153ce6d13a3c1d7145d4f6b32d797e5d68c6e0f  0.0s
+ => => naming to docker.io/library/sbcntr-frontend-app:v1.0.1                   0.0s
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ aws ecr --region ${AWS_REGION} get-login-password | docker login --username AWS --password-stdin https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-frontend-app
+WARNING! Your password will be stored unencrypted in /home/ec2-user/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ docker image tag sbcntr-frontend-app:v1.0.1 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-frontend-app:v1.0.1
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ docker image push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-frontend-app:v1.0.1
+The push refers to repository [336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-frontend-app]
+32af7aca4270: Pushed
+4e448909a935: Layer already exists
+1bf2adade0f1: Layer already exists
+95f4add1dc04: Layer already exists
+3af0428f92ee: Layer already exists
+7cbbdcb6e25d: Layer already exists
+5c23cae26780: Layer already exists
+8210408c0249: Layer already exists
+13a56b653580: Layer already exists
+v1.0.1: digest: sha256:6a09525a7f207c48c3ac427524d96f60c5a4c49e3e6a6ffcdb2d1f82924bab23 size: 2204

@@ -1,0 +1,102 @@
+$ aws ssm start-session --target $(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=sbnctr-pseudo-cloud9" "Name=instance-state-name,Values=running" \
+    --query "Reservations[0].Instances[0].InstanceId" \
+    --output text)
+
+Starting session with SessionId: admin_user-oolndrq7rjuzugqx58zpe9n4ea
+sh-5.2$ whoami
+ssm-user
+sh-5.2$ sudo -i -u ec2-user
+[ec2-user@ip-10-0-241-107 ~]$ pwd
+/home/ec2-user
+[ec2-user@ip-10-0-241-107 ~]$ git clone https://github.com/uma-arai/sbcntr-frontend.git; cd sbcntr-frontend
+Cloning into 'sbcntr-frontend'...
+remote: Enumerating objects: 443, done.
+remote: Counting objects: 100% (81/81), done.
+remote: Compressing objects: 100% (35/35), done.
+remote: Total 443 (delta 62), reused 46 (delta 46), pack-reused 362 (from 1)
+Receiving objects: 100% (443/443), 1.50 MiB | 36.59 MiB/s, done.
+Resolving deltas: 100% (185/185), done.
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ git fetch; git switch v2
+branch 'v2' set up to track 'origin/v2'.
+Switched to a new branch 'v2'
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ sudo npm install -g pnpm
+
+added 2 packages in 6s
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 12.0.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+npm notice To update run: npm install -g npm@12.0.2
+npm notice
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ pnpm -v
+10.12.4
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ cp .npmrc.sampe .npmrc
+cp: cannot stat '.npmrc.sampe': No such file or directory
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ cp .npmrc.sample .npmrc
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ pnpm check-node
+Fetching Node.js 22.12.0 ...
+
+> my-react-router-app@ check-node /home/ec2-user/sbcntr-frontend
+> node -v
+
+v22.12.0
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ pnpm install --frozen-lockfile --prod
+Lockfile is up to date, resolution step is skipped
+Packages: +304
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   ╭───────────────────────────────────────────╮
+   │                                           │
+   │    Update available! 10.12.4 → 12.3.4.    │
+   │    Changelog: https://pnpm.io/v/12.3.4    │
+   │   To update, run: pnpm add -g @pnpm/exe   │
+   │                                           │
+   ╰───────────────────────────────────────────╯
+
+Progress: resolved 304, reused 0, downloaded 304, added 304, done
+
+dependencies:
++ @hookform/resolvers 5.0.1
++ @radix-ui/react-alert-dialog 1.1.2
++ @radix-ui/react-checkbox 1.1.2
++ @radix-ui/react-dialog 1.1.4
++ @radix-ui/react-dropdown-menu 2.1.15
++ @radix-ui/react-label 2.1.0
++ @radix-ui/react-popover 1.1.5
++ @radix-ui/react-slot 1.1.0
++ @radix-ui/react-toast 1.2.14
++ @radix-ui/react-tooltip 1.1.7
++ @react-router/node 7.0.1
++ @react-router/serve 7.0.1
++ class-variance-authority 0.7.1
++ clsx 2.1.1
++ date-fns 4.1.0
++ isbot 5.1.17
++ lucide-react 0.468.0
++ react 18.3.1
++ react-day-picker 9.5.1
++ react-dom 18.3.1
++ react-hook-form 7.56.4
++ react-router 7.0.1
++ tailwind-merge 2.5.5
++ tailwindcss-animate 1.0.7
++ uuid 11.0.5
++ zod 3.25.23
+
+devDependencies: skipped
+
+Done in 12.4s using pnpm v10.12.4
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ cd ..
+[ec2-user@ip-10-0-241-107 ~]$ pwd
+/home/ec2-user
+[ec2-user@ip-10-0-241-107 ~]$ git clone https://github.com/uma-arai/sbcntr-backend.git; cd sbcntr-backend
+Cloning into 'sbcntr-backend'...
+remote: Enumerating objects: 476, done.
+remote: Counting objects: 100% (38/38), done.
+remote: Compressing objects: 100% (12/12), done.
+remote: Total 476 (delta 29), reused 26 (delta 26), pack-reused 438 (from 2)
+Receiving objects: 100% (476/476), 118.34 KiB | 14.79 MiB/s, done.
+Resolving deltas: 100% (265/265), done.
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ git fetch; git switch v2
+branch 'v2' set up to track 'origin/v2'.
+Switched to a new branch 'v2'

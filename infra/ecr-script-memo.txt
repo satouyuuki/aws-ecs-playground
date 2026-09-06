@@ -1,0 +1,183 @@
+$ aws ssm start-session --target $(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=sbnctr-pseudo-cloud9" "Name=instance-state-name,Values=running" \
+    --query "Reservations[0].Instances[0].InstanceId" \
+    --output text)
+
+Starting session with SessionId: admin_user-6iq9bke5c5bxtrk4qru7acptdq
+sh-5.2$ sudo -i -u ec2-user
+[ec2-user@ip-10-0-241-107 ~]$ cd sbcntr-backend
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ pwd
+/home/ec2-user/sbcntr-backend
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker buildx build -t sbcntr-backend-app:v1 .
+[+] Building 183.0s (16/16) FINISHED                                  docker:default
+ => [internal] load build definition from Dockerfile                            0.0s
+ => => transferring dockerfile: 964B                                            0.0s
+ => [internal] load metadata for public.ecr.aws/debian/debian:latest            1.2s
+ => [internal] load metadata for public.ecr.aws/docker/library/golang:1.23.4    1.4s
+ => [internal] load .dockerignore                                               0.0s
+ => => transferring context: 2B                                                 0.0s
+ => [builder 1/7] FROM public.ecr.aws/docker/library/golang:1.23.4@sha256:982  16.9s
+ => => resolve public.ecr.aws/docker/library/golang:1.23.4@sha256:9820aca42262  0.0s
+ => => sha256:9820aca42262f58451f006de3213055974b36f24b31508c1 9.74kB / 9.74kB  0.0s
+ => => sha256:7e8013ffe28808651d564f9cecc2a4bd5717849dad9473a3 2.82kB / 2.82kB  0.0s
+ => => sha256:d22b85d68f8a4dce392d372c8a196863eac6d111c36b71 23.60MB / 23.60MB  2.1s
+ => => sha256:936252136b926e9bca27f4a5442f6a5d10c0ea4a23ca8b 64.36MB / 64.36MB  3.6s
+ => => sha256:b9ab02ec32a6df86bf004a49b85efd655068418a409d9641 2.32kB / 2.32kB  0.0s
+ => => sha256:e474a4a4cbbfe5b308416796d99b79605bbfad6cb32ab1 48.31MB / 48.31MB  0.5s
+ => => sha256:f08a2ba006cf125d252aa1f1d9e53564b2e3aaa05de913 86.37MB / 86.37MB  1.0s
+ => => extracting sha256:e474a4a4cbbfe5b308416796d99b79605bbfad6cb32ab1d94d61d  2.7s
+ => => sha256:39f8f326b04424eb2027d1f0e3255fe568d71a5567f894 70.67MB / 70.67MB  1.5s
+ => => sha256:222326c76ae7e20a629e4b7bd79388ccd5a17905b2dac987d13a 126B / 126B  1.6s
+ => => sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68 32B / 32B  1.7s
+ => => extracting sha256:d22b85d68f8a4dce392d372c8a196863eac6d111c36b714179b4a  0.7s
+ => => extracting sha256:936252136b926e9bca27f4a5442f6a5d10c0ea4a23ca8b30c65de  3.5s
+ => => extracting sha256:f08a2ba006cf125d252aa1f1d9e53564b2e3aaa05de913da5b2c4  3.3s
+ => => extracting sha256:39f8f326b04424eb2027d1f0e3255fe568d71a5567f894a08cd86  5.3s
+ => => extracting sha256:222326c76ae7e20a629e4b7bd79388ccd5a17905b2dac987d13a1  0.0s
+ => => extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e6  0.0s
+ => [runner 1/3] FROM public.ecr.aws/debian/debian:latest@sha256:08a2f82d643e0  7.7s
+ => => resolve public.ecr.aws/debian/debian:latest@sha256:08a2f82d643e0a60d3e8  0.0s
+ => => sha256:08a2f82d643e0a60d3e84b2fc6d0525f1ee80ca3b5f11801 1.75kB / 1.75kB  0.0s
+ => => sha256:0aa0908407cce3da2a90c1d80acc6ca5ca57401ed63eecfa 1.04kB / 1.04kB  0.0s
+ => => sha256:1c833814c4af76e31f294017972a8090daf873dcf6d260f8e24b 466B / 466B  0.0s
+ => => sha256:7f50a08a25277c02b8dfc99818a21e12083215981e0aa0 49.70MB / 49.70MB  4.6s
+ => => extracting sha256:7f50a08a25277c02b8dfc99818a21e12083215981e0aa03cb07cb  2.8s
+ => [internal] load build context                                               0.0s
+ => => transferring context: 300.82kB                                           0.0s
+ => [runner 2/3] RUN apt-get update && apt-get install -y dnsutils && rm -rf /  8.1s
+ => [builder 2/7] WORKDIR /app                                                  0.1s
+ => [builder 3/7] COPY go.mod go.sum ./                                         0.1s
+ => [builder 4/7] RUN go mod download                                           7.9s
+ => [builder 5/7] RUN go install github.com/golangci/golangci-lint/cmd/golan  100.5s
+ => [builder 6/7] COPY . /app                                                   0.2s
+ => [builder 7/7] RUN make validate &&     make build-linux                    55.2s
+ => [runner 3/3] COPY --from=builder /app/bin/main /                            0.0s
+ => exporting to image                                                          0.4s
+ => => exporting layers                                                         0.3s
+ => => writing image sha256:0b66a0eddce09c03a740179c392495d7da4dd804815d8b78de  0.0s
+ => => naming to docker.io/library/sbcntr-backend-app:v1                        0.0s
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker image ls --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}"
+IMAGE ID       REPOSITORY           TAG
+0b66a0eddce0   sbcntr-backend-app   v1
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker image tag sbcntr-backend-app:v1 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-backend-app:v1
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker image ls --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}"
+IMAGE ID       REPOSITORY                                                             TAG
+0b66a0eddce0   336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app   v1
+0b66a0eddce0   sbcntr-backend-app                                                     v1
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ aws ecr --region ${AWS_REGION} get-login-password | docker login --username AWS --password-stdin https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws/sbcntr-backend-app
+^C
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ exit
+logout
+
+$ aws ssm start-session --target $(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=sbnctr-pseudo-cloud9" "Name=instance-state-name,Values=running" \
+    --query "Reservations[0].Instances[0].InstanceId" \
+    --output text)
+
+Starting session with SessionId: admin_user-h4qsc4ydxdhc7vniq3rql7nu8y
+sh-5.2$ sudo -i -u ec2-user
+[ec2-user@ip-10-0-241-107 ~]$ cd sbcntr-backend
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ aws ecr --region ${AWS_REGION} get-login-password | docker login --username AWS --password-stdin https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws/sbcntr-backend-app
+Error response from daemon: Get "https://336805808247.dkr.ecr.ap-northeast-1.amazonaws/v2/": dial tcp: lookup 336805808247.dkr.ecr.ap-northeast-1.amazonaws on 10.0.0.2:53: no such host
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ aws ecr --region ${AWS_REGION} get-login-password | docker login --username AWS --password-stdin https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-backend-app
+WARNING! Your password will be stored unencrypted in /home/ec2-user/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker image push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-backend-app:v1
+The push refers to repository [336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app]
+4aa927aa8ce4: Pushed
+ce10951d60b2: Pushed
+c2caaa72c4a9: Pushed
+v1: digest: sha256:2e245eabdbec5d602d10170950ef76b004b581b16854b2380bcfd14a22aa3970 size: 951
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker image rm -f $(docker image ls -q | sort | uniq)
+Untagged: 336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app:v1
+Untagged: 336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app@sha256:2e245eabdbec5d602d10170950ef76b004b581b16854b2380bcfd14a22aa3970
+Untagged: sbcntr-backend-app:v1
+Deleted: sha256:0b66a0eddce09c03a740179c392495d7da4dd804815d8b78de0e9ce9eb88bdb2
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker image ls --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}"
+IMAGE ID   REPOSITORY   TAG
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker image pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-backend-app:v1
+v1: Pulling from sbcntr-backend-app
+050c07fa95e3: Already exists
+fd195d8d0885: Already exists
+64d3bbac02ab: Already exists
+Digest: sha256:2e245eabdbec5d602d10170950ef76b004b581b16854b2380bcfd14a22aa3970
+Status: Downloaded newer image for 336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app:v1
+336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app:v1
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker image ls --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}"
+IMAGE ID       REPOSITORY                                                             TAG
+0b66a0eddce0   336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app   v1
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker container run -d -p 8081:8081 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-backend-app:v1
+03df68cc7ed16a68d5d04a47745a543ffd3795fbdf5683b21686f8dc4ef29910
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ docker container ls --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+CONTAINER ID   IMAGE                                                                     STATUS         PORTS
+03df68cc7ed1   336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app:v1   Up 6 seconds   80/tcp, 0.0.0.0:8081->8081/tcp, :::8081->8081/tcp
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ date; curl http://localhost:8081/v1/helloworld
+Sun Sep  6 02:33:39 UTC 2026
+{"data":{"message":"Hello world"}}
+[ec2-user@ip-10-0-241-107 sbcntr-backend]$ cd ..
+[ec2-user@ip-10-0-241-107 ~]$ cd sbcntr-frontend
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ docker buildx build -t sbcntr-frontend-app:v1 .
+[+] Building 80.2s (19/19) FINISHED                                   docker:default
+ => [internal] load build definition from Dockerfile                            0.0s
+ => => transferring dockerfile: 1.46kB                                          0.0s
+ => [internal] load metadata for public.ecr.aws/docker/library/node:22-slim     1.3s
+ => [internal] load .dockerignore                                               0.0s
+ => => transferring context: 512B                                               0.0s
+ => [internal] load build context                                               0.0s
+ => => transferring context: 400.74kB                                           0.0s
+ => [builder 1/8] FROM public.ecr.aws/docker/library/node:22-slim@sha256:83f48  3.8s
+ => => resolve public.ecr.aws/docker/library/node:22-slim@sha256:83f487e0a6342  0.0s
+ => => sha256:8d342e46d3b2883df69f797cb60fc71d8a0b65de65ddfbf4 1.93kB / 1.93kB  0.0s
+ => => sha256:97aaa653fb55806b0d7acc6c93dd4f3f06b373a286c988bd 6.89kB / 6.89kB  0.0s
+ => => sha256:75782e20ea1f4a9d9259bc20a5ecbbea8d5943bf5370bf 28.12MB / 28.12MB  0.2s
+ => => sha256:37dfd750e835f46db88ab706ff6b449bc576c39657523b61 3.31kB / 3.31kB  0.3s
+ => => sha256:05e409eae5f2e1ca109b718c864fc5fc7bfe06ce6b30d3 50.06MB / 50.06MB  0.6s
+ => => sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3eba 5.22kB / 5.22kB  0.0s
+ => => extracting sha256:75782e20ea1f4a9d9259bc20a5ecbbea8d5943bf5370bf0f57279  1.5s
+ => => sha256:26189716fda9c974217999e79ff43087bd9611673b23fa84 1.71MB / 1.71MB  0.4s
+ => => sha256:d5912031533eab227ffbb29397d65bcf3d39a8d12b32f2fc5626 448B / 448B  0.4s
+ => => extracting sha256:37dfd750e835f46db88ab706ff6b449bc576c39657523b619466c  0.0s
+ => => extracting sha256:05e409eae5f2e1ca109b718c864fc5fc7bfe06ce6b30d38a2c17f  1.6s
+ => => extracting sha256:26189716fda9c974217999e79ff43087bd9611673b23fa84ff586  0.1s
+ => => extracting sha256:d5912031533eab227ffbb29397d65bcf3d39a8d12b32f2fc56261  0.0s
+ => [builder 2/8] WORKDIR /app                                                  0.3s
+ => [builder 3/8] RUN apt-get update && apt-get install -y     python3     ma  24.3s
+ => [prod-deps 3/5] RUN corepack enable && corepack prepare pnpm@10.12.4 --act  2.4s
+ => [runner 3/5] COPY --chown=node:node package.json pnpm-lock.yaml /app/       0.1s
+ => [prod-deps 4/5] COPY package.json pnpm-lock.yaml ./                         0.1s
+ => [prod-deps 5/5] RUN pnpm install --prod --frozen-lockfile                   8.7s
+ => [builder 4/8] RUN corepack enable && corepack prepare pnpm@10.12.4 --activ  2.1s
+ => [runner 4/5] COPY --from=prod-deps --chown=node:node /app/node_modules /ap  3.1s
+ => [builder 5/8] COPY package.json pnpm-lock.yaml ./                           0.1s
+ => [builder 6/8] RUN pnpm install --frozen-lockfile                           10.5s
+ => [builder 7/8] COPY . .                                                      0.1s
+ => [builder 8/8] RUN pnpm build                                               21.4s
+ => [runner 5/5] COPY --from=builder  --chown=node:node /app/build        /app  0.1s
+ => exporting to image                                                         14.5s
+ => => exporting layers                                                        14.5s
+ => => writing image sha256:e7e5276c8fbdd3fbda6a0d09822227fe3a976e386d502c25b4  0.0s
+ => => naming to docker.io/library/sbcntr-frontend-app:v1                       0.0s
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ docker image tag sbcntr-frontend-app:v1 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-frontend-app:v1
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ aws ecr --region ${AWS_REGION} get-login-password | docker login --username AWS --password-stdin https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-frontend-app
+WARNING! Your password will be stored unencrypted in /home/ec2-user/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[ec2-user@ip-10-0-241-107 sbcntr-frontend]$ docker image push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/sbcntr-frontend-app:v1
+The push refers to repository [336805808247.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-frontend-app]
+6f8db6a93b53: Pushed
+4e448909a935: Pushed
+1bf2adade0f1: Pushed
+95f4add1dc04: Pushed
+3af0428f92ee: Pushed
+7cbbdcb6e25d: Pushed
+5c23cae26780: Pushed
+8210408c0249: Pushed
+13a56b653580: Pushed
+v1: digest: sha256:9d08da310837d97f6d21db1b45fac984ee5ae52226b10dbd88be79f180f8fa29 size: 2204
