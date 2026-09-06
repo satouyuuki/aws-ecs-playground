@@ -99,7 +99,12 @@ resource "aws_ecs_task_definition" "backend" {
         {
           name  = "DB_CONN"
           value = "1"
-        }
+        },
+        # ★ アクセスログ抑制用の環境変数を追加
+        # {
+        #   name  = "SBCNTR_DISABLE_LOGGING"
+        #   value = "1"
+        # }
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -152,5 +157,38 @@ resource "aws_ecs_service" "backend" {
   tags = {
     Project = "sbnctr"
     Name    = "sbnctr-backend-app"
+  }
+}
+
+# ==========================================
+# ECS Service Auto Scaling (Backend)
+# ==========================================
+
+# 1. スケーリングターゲットの定義 (最小 1, 最大 4)
+resource "aws_appautoscaling_target" "backend" {
+  max_capacity       = 4
+  min_capacity       = 1
+  resource_id        = "service/${aws_ecs_cluster.app.name}/${aws_ecs_service.backend.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+# 2. ターゲット追跡スケーリングポリシーの定義 (CPU使用率 80%)
+resource "aws_appautoscaling_policy" "backend_cpu" {
+  name               = "SbcntrEcsScalingPolicy"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.backend.resource_id
+  scalable_dimension = aws_appautoscaling_target.backend.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.backend.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value       = 80.0
+    scale_out_cooldown = 30    # スケールアウト クールダウン（秒）
+    scale_in_cooldown  = 60    # スケールイン クールダウン（秒）
+    disable_scale_in   = false # スケールインを有効化
   }
 }

@@ -239,6 +239,13 @@ resource "aws_security_group" "backend" {
     security_groups = [aws_security_group.frontend.id]
   }
 
+  ingress {
+    from_port       = 0
+    to_port         = 65535
+    protocol        = "tcp"
+    security_groups = [aws_security_group.management.id]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
