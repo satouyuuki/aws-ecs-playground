@@ -15,8 +15,8 @@ resource "aws_cloudwatch_log_group" "backend_app" {
 # Service Discovery (Cloud Map)
 # ==========================================
 resource "aws_service_discovery_private_dns_namespace" "sbcntr" {
-  name        = "sbcntr.local"
-  description = "sbcntr local namespace for ECS services"
+  name        = "${local.prefix}.local"
+  description = "${local.prefix} local namespace for ECS services"
   vpc         = aws_vpc.main.id
 
   tags = {
@@ -62,7 +62,7 @@ resource "aws_ecs_task_definition" "backend" {
   container_definitions = jsonencode([
     {
       name              = "app"
-      image             = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-backend-app:v1"
+      image             = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/${local.prefix}-backend-app:v1"
       essential         = true
       cpu               = 256
       memoryReservation = 256

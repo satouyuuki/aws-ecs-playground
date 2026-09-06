@@ -2,12 +2,12 @@
 # RDS DB Subnet Group
 # ==========================================
 resource "aws_db_subnet_group" "main" {
-  name        = "sbcntr-main"
-  description = "DB subnet group for sbcntr"
+  name        = "${local.prefix}-main"
+  description = "DB subnet group for ${local.prefix}"
   subnet_ids  = [aws_subnet.private_db_a.id, aws_subnet.private_db_c.id]
 
   tags = {
-    Name = "sbcntr-main"
+    Name = "${local.prefix}-main"
   }
 }
 
@@ -15,12 +15,12 @@ resource "aws_db_subnet_group" "main" {
 # Aurora PostgreSQL Cluster (Serverless v2 with Secrets Manager)
 # ==========================================
 resource "aws_rds_cluster" "postgresql" {
-  cluster_identifier = "sbcntr-db-cluster"
+  cluster_identifier = "${local.prefix}-db-cluster"
   engine             = "aurora-postgresql"
   engine_mode        = "provisioned"
   engine_version     = "17.7"
   database_name      = "app"
-  master_username    = "sbcntradmin"
+  master_username    = "${local.prefix}admin"
 
   # パスワードの代わりにSecrets Manager管理を使用
   manage_master_user_password = true
@@ -42,13 +42,13 @@ resource "aws_rds_cluster" "postgresql" {
   }
 
   tags = {
-    Name = "sbcntr-db-cluster"
+    Name = "${local.prefix}-db-cluster"
   }
 }
 
 # Aurora Serverless v2 インスタンス (AZ: 1aに配置)
 resource "aws_rds_cluster_instance" "postgresql_instance" {
-  identifier         = "sbcntr-db-instance-1a"
+  identifier         = "${local.prefix}-db-instance-1a"
   cluster_identifier = aws_rds_cluster.postgresql.id
   instance_class     = "db.serverless"
   engine             = aws_rds_cluster.postgresql.engine
@@ -58,6 +58,6 @@ resource "aws_rds_cluster_instance" "postgresql_instance" {
   publicly_accessible = false
 
   tags = {
-    Name = "sbcntr-db-instance-1a"
+    Name = "${local.prefix}-db-instance-1a"
   }
 }

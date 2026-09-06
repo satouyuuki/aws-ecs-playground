@@ -59,7 +59,7 @@ resource "aws_vpc_endpoint" "secretsmanager" {
 # ==========================================
 # Target Group: Blue
 resource "aws_lb_target_group" "frontapp_blue" {
-  name             = "sbcntr-frontapp-blue"
+  name             = "${local.prefix}-frontapp-blue"
   port             = 8080
   protocol         = "HTTP"
   vpc_id           = aws_vpc.main.id
@@ -79,13 +79,13 @@ resource "aws_lb_target_group" "frontapp_blue" {
   }
 
   tags = {
-    Name = "sbcntr-frontapp-blue"
+    Name = "${local.prefix}-frontapp-blue"
   }
 }
 
 # Target Group: Green
 resource "aws_lb_target_group" "frontapp_green" {
-  name             = "sbcntr-frontapp-green"
+  name             = "${local.prefix}-frontapp-green"
   port             = 8080
   protocol         = "HTTP"
   vpc_id           = aws_vpc.main.id
@@ -105,13 +105,13 @@ resource "aws_lb_target_group" "frontapp_green" {
   }
 
   tags = {
-    Name = "sbcntr-frontapp-green"
+    Name = "${local.prefix}-frontapp-green"
   }
 }
 
 # ALB (Internet-facing)
 resource "aws_lb" "ingress" {
-  name                       = "sbcntr-ingress"
+  name                       = "${local.prefix}-ingress"
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.ingress.id]

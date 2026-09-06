@@ -2,7 +2,7 @@
 # ECS Cluster
 # ==========================================
 resource "aws_ecs_cluster" "app" {
-  name = "sbcntr-app"
+  name = "${local.prefix}-app"
 
   setting {
     name  = "containerInsights"
@@ -10,7 +10,7 @@ resource "aws_ecs_cluster" "app" {
   }
 
   tags = {
-    Name = "sbcntr-app"
+    Name = "${local.prefix}-app"
   }
 }
 
@@ -108,7 +108,7 @@ resource "aws_iam_role" "ecs_task_role" {
 # ECS Task Definition (Frontend)
 # ==========================================
 resource "aws_ecs_task_definition" "frontend" {
-  family                   = "sbcntr-frontend-app"
+  family                   = "${local.prefix}-frontend-app"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "512"  # 0.5 vCPU
@@ -123,7 +123,7 @@ resource "aws_ecs_task_definition" "frontend" {
   container_definitions = jsonencode([
     {
       name                   = "app"
-      image                  = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/sbcntr-frontend-app:v1"
+      image                  = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/${local.prefix}-frontend-app:v1"
       essential              = true
       cpu                    = 512
       memory                 = 1024
@@ -137,13 +137,13 @@ resource "aws_ecs_task_definition" "frontend" {
         }
       ]
       environment = [
-        { name = "BACKEND_FQDN", value = "backend-app.sbcntr.local" },
+        { name = "BACKEND_FQDN", value = "backend-app.${local.prefix}.local" },
         { name = "BACKEND_PORT", value = "8081" }
       ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/sbcntr/ecs/frontend-app"
+          "awslogs-group"         = "/${local.prefix}/ecs/frontend-app"
           "awslogs-region"        = "ap-northeast-1"
           "awslogs-stream-prefix" = "ecs"
           "awslogs-create-group"  = "true"
@@ -153,7 +153,7 @@ resource "aws_ecs_task_definition" "frontend" {
   ])
 
   tags = {
-    Name = "sbcntr-frontend-app"
+    Name = "${local.prefix}-frontend-app"
   }
 }
 
@@ -161,11 +161,11 @@ resource "aws_ecs_task_definition" "frontend" {
 # CloudWatch Log Group for ECS Frontend
 # ==========================================
 resource "aws_cloudwatch_log_group" "frontend_app" {
-  name              = "/sbcntr/ecs/frontend-app"
+  name              = "/${local.prefix}/ecs/frontend-app"
   retention_in_days = 30
 
   tags = {
-    Name = "sbcntr-ecs-frontend-app-logs"
+    Name = "${local.prefix}-ecs-frontend-app-logs"
   }
 }
 
@@ -173,7 +173,7 @@ resource "aws_cloudwatch_log_group" "frontend_app" {
 # ECS Service (Frontend with CodeDeploy B/G)
 # ==========================================
 resource "aws_ecs_service" "frontend" {
-  name            = "sbcntr-frontend-app"
+  name            = "${local.prefix}-frontend-app"
   cluster         = aws_ecs_cluster.app.id
   task_definition = aws_ecs_task_definition.frontend.arn
   desired_count   = 1

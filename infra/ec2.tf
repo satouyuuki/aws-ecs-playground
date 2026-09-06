@@ -106,7 +106,7 @@ resource "aws_instance" "pseudo_cloud9" {
     import http from 'k6/http';
     import { check } from 'k6';
 
-    const TARGET_URL = __ENV.TARGET_URL || 'http://backend-app.sbcntr.local:8081/';
+    const TARGET_URL = __ENV.TARGET_URL || 'http://backend-app.${local.prefix}.local:8081/';
     const VUS = __ENV.VUS ? parseInt(__ENV.VUS) : 100;
     const ITERATIONS = __ENV.ITERATIONS ? parseInt(__ENV.ITERATIONS) : 1000000;
 

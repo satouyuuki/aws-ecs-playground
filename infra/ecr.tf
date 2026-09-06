@@ -2,7 +2,7 @@
 # ECR Private Repositories
 # ==========================================
 resource "aws_ecr_repository" "backend" {
-  name                 = "sbcntr-backend-app"
+  name                 = "${local.prefix}-backend-app"
   image_tag_mutability = "MUTABLE"
 
   encryption_configuration {
@@ -10,12 +10,12 @@ resource "aws_ecr_repository" "backend" {
   }
 
   tags = {
-    Name = "sbcntr-backend-app"
+    Name = "${local.prefix}-backend-app"
   }
 }
 
 resource "aws_ecr_repository" "frontend" {
-  name                 = "sbcntr-frontend-app"
+  name                 = "${local.prefix}-frontend-app"
   image_tag_mutability = "MUTABLE"
 
   encryption_configuration {
@@ -23,7 +23,7 @@ resource "aws_ecr_repository" "frontend" {
   }
 
   tags = {
-    Name = "sbcntr-frontend-app"
+    Name = "${local.prefix}-frontend-app"
   }
 }
 
