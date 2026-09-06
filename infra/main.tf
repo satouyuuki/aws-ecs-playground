@@ -301,7 +301,7 @@ resource "aws_security_group" "egress" {
     security_groups = [
       aws_security_group.frontend.id,
       aws_security_group.backend.id,
-      # aws_security_group.management.id
+      aws_security_group.management.id
     ]
   }
 
