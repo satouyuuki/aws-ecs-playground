@@ -73,6 +73,34 @@ resource "aws_ecs_task_definition" "backend" {
           protocol      = "tcp"
         }
       ]
+      secrets = [
+        # {
+        #   name      = "DB_HOST"
+        #   valueFrom = "${aws_rds_cluster.postgresql.master_user_secret[0].secret_arn}:host::"
+        # },
+        {
+          name      = "DB_USERNAME"
+          valueFrom = "${aws_rds_cluster.postgresql.master_user_secret[0].secret_arn}:username::"
+        },
+        {
+          name      = "DB_PASSWORD"
+          valueFrom = "${aws_rds_cluster.postgresql.master_user_secret[0].secret_arn}:password::"
+        }
+      ]
+      environment = [
+        {
+          name  = "DB_HOST"
+          value = aws_rds_cluster.postgresql.endpoint
+        },
+        {
+          name  = "DB_NAME"
+          value = "app"
+        },
+        {
+          name  = "DB_CONN"
+          value = "1"
+        }
+      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {

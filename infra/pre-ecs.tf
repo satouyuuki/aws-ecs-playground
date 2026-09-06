@@ -27,6 +27,34 @@ resource "aws_vpc_endpoint" "logs" {
 }
 
 # ==========================================
+# VPC Endpoint (Interface型: Secrets Manager)
+# ==========================================
+resource "aws_vpc_endpoint" "secretsmanager" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.ap-northeast-1.secretsmanager"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.private_ingress_a.id, aws_subnet.private_ingress_c.id]
+  security_group_ids  = [aws_security_group.egress.id]
+  private_dns_enabled = true
+
+  # policy = jsonencode({
+  #   Version = "2012-10-17"
+  #   Statement = [
+  #     {
+  #       Effect    = "Allow"
+  #       Principal = "*"
+  #       Action    = "*"
+  #       Resource  = "*"
+  #     }
+  #   ]
+  # })
+
+  tags = {
+    Name = "sbnctr-secrets-manager"
+  }
+}
+
+# ==========================================
 # ALB & Target Groups
 # ==========================================
 # Target Group: Blue
