@@ -174,3 +174,32 @@ resource "aws_iam_role" "ecs_infrastructure_role" {
     Name = "EcsInfrastructureRoleForLoadBalancers"
   }
 }
+
+# ==========================================
+# VPC Endpoint (Interface型: SSMMessages for ECS Exec)
+# ==========================================
+resource "aws_vpc_endpoint" "ssmmessages" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.ap-northeast-1.ssmmessages"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.private_ingress_a.id, aws_subnet.private_ingress_c.id]
+  security_group_ids  = [aws_security_group.egress.id]
+  private_dns_enabled = true
+
+  # policy = jsonencode({
+  #   Version = "2012-10-17"
+  #   Statement = [
+  #     {
+  #       Effect    = "Allow"
+  #       Principal = "*"
+  #       Action    = "*"
+  #       Resource  = "*"
+  #     }
+  #   ]
+  # })
+
+  tags = {
+    Name = "sbnctr-ssmmessages"
+  }
+}
+

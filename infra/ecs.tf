@@ -75,6 +75,35 @@ resource "aws_iam_role_policy" "ecs_secrets_policy" {
   })
 }
 
+
+# ==========================================
+# ECS Task Role (for ECS Exec)
+# ==========================================
+resource "aws_iam_role" "ecs_task_role" {
+  name = "SbcntrEcsTaskRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  ]
+
+  tags = {
+    Name = "SbcntrEcsTaskRole"
+  }
+}
+
 # ==========================================
 # ECS Task Definition (Frontend)
 # ==========================================
@@ -85,6 +114,7 @@ resource "aws_ecs_task_definition" "frontend" {
   cpu                      = "512"  # 0.5 vCPU
   memory                   = "1024" # 1 GB
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
   runtime_platform {
     cpu_architecture        = "ARM64"
     operating_system_family = "LINUX"
@@ -97,7 +127,8 @@ resource "aws_ecs_task_definition" "frontend" {
       essential              = true
       cpu                    = 512
       memory                 = 1024
-      readonlyRootFilesystem = true
+      readonlyRootFilesystem = false
+      # readonlyRootFilesystem = true
       portMappings = [
         {
           containerPort = 8080
@@ -160,11 +191,14 @@ resource "aws_ecs_service" "frontend" {
     container_port   = 8080
   }
 
+  # ★ ECS Execを有効化
+  enable_execute_command = true
+
   # Blue/Greenデプロイメント（CodeDeploy連携）を使用する場合、
   # 初回作成後のタスク定義やロードバランサーの変更はCodeDeploy経由で行うためライフサイクル設定を推奨
   lifecycle {
     ignore_changes = [
-      task_definition,
+      # task_definition,
       load_balancer
     ]
   }
