@@ -300,7 +300,8 @@ resource "aws_security_group" "egress" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.frontend.id,
-      aws_security_group.backend.id
+      aws_security_group.backend.id,
+      # aws_security_group.management.id
     ]
   }
 
